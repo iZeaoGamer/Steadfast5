@@ -50,11 +50,7 @@ class DoublePlant extends Flowable {
 	}
 
 
-	public function onUpdate($type, $deep){
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		if ($type === Level::BLOCK_UPDATE_NORMAL) {
 			$blockUnder = $this->getSide(0);
 			if ($blockUnder->isTransparent() === true && $blockUnder->getId() != $this->id) { //Replace with common break method
@@ -65,21 +61,18 @@ class DoublePlant extends Flowable {
 		return false;
 	}
 
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null) {
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
 		if ($this->getDamage() < 0x08) {
-			$down = $this->getSide(0);
-			if ($down->getId() === self::GRASS) {
-				$blockAbove = $this->level->getBlockIdAt($this->x, $this->y + 1, $this->z);
-				if ($blockAbove == Block::AIR) {
-					if ($this->level->setBlock($this, $this, true, true)) {
-						$upperPart = clone $this;
-						$upperPart->y++;
-						$upperPart->setDamage($this->getDamage() | 0x08);
-						if ($this->level->setBlock($upperPart, $upperPart, true, true)) {
-							return true;
-						}
-						$this->level->setBlock($this, Block::get(Block::AIR), true, true);
+			$blockAbove = $this->level->getBlockIdAt($this->x, $this->y + 1, $this->z);
+			if ($blockAbove == Block::AIR) {
+				if ($this->level->setBlock($this, $this, true, true)) {
+					$upperPart = clone $this;
+					$upperPart->y++;
+					$upperPart->setDamage($this->getDamage() | 0x08);
+					if ($this->level->setBlock($upperPart, $upperPart, true, true)) {
+						return true;
 					}
+					$this->level->setBlock($this, Block::get(Block::AIR), true, true);
 				}
 			}
 		}
@@ -110,19 +103,10 @@ class DoublePlant extends Flowable {
 		}
 		return true;
 	}
-	
-	public function getBreakTime(Item $item) {
-		return 0.05;
-	}
 
 	public function getDrops(Item $item) {
-		if ($this->meta >= 0x08 && $this->level->getBlockIdAt($this->x, $this->y - 1, $this->z) == $this->id) {
-			$meta = $this->level->getBlockDataAt($this->x, $this->y - 1, $this->z);
-		} else {
-			$meta = $this->meta;
-		}
 		return [
-			[$this->id, $meta & 0x07, 1]
+			[$this->id, $this->getDamage() & 0x07, 1]
 		];
 	}
 

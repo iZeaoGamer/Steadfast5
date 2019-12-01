@@ -93,7 +93,7 @@ class NBT{
 
 		if($item->hasCompound()){
 			$tag->tag = clone $item->getNamedTag();
-			$tag->tag->setName("tag");
+//			$tag->tag->setName("tag");
 		}
 
 		return $tag;
@@ -111,7 +111,6 @@ class NBT{
 		$item = Item::get($tag->id->getValue(), !isset($tag->Damage) ? 0 : $tag->Damage->getValue(), $tag->Count->getValue());
 		
 		if(isset($tag->tag) and $tag->tag instanceof Compound){
-			$tag->tag->setName("");
 			$item->setNamedTag($tag->tag);
 		}
 
@@ -151,7 +150,6 @@ class NBT{
 	}
 
 	public static function matchTree(Compound $tag1, Compound $tag2){
-//		if($tag1->getName() !== $tag2->getName() or $tag1->getCount() !== $tag2->getCount()){
 		if($tag1->getCount() !== $tag2->getCount()){
 			return false;
 		}
@@ -441,9 +439,7 @@ class NBT{
 		}elseif($len === true){
 			return substr($this->buffer, $this->offset);
 		}
-		if (strlen($this->buffer) < $this->offset + $len) {
-			throw new \Exception('get nbt error');
-		}
+
 		return $len === 1 ? $this->buffer{$this->offset++} : substr($this->buffer, ($this->offset += $len) - $len, $len);
 	}
 
@@ -544,7 +540,7 @@ class NBT{
 				break;
 			case NBT::TAG_ByteArray:
 				$tag = new ByteArray($this->checkGetString($new));
-				$tag->read($this, $new);
+				$tag->read($this);
 				break;
 			case NBT::TAG_String:
 				$tag = new StringTag($this->checkGetString($new));
@@ -560,7 +556,7 @@ class NBT{
 				break;
 			case NBT::TAG_IntArray:
 				$tag = new IntArray($this->checkGetString($new));
-				$tag->read($this, $new);
+				$tag->read($this);
 				break;
 
 			case NBT::TAG_End: //No named tag

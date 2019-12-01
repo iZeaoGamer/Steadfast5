@@ -1,4 +1,5 @@
 <?php
+
 namespace pocketmine\event\server;
 
 use pocketmine\command\CommandSender;

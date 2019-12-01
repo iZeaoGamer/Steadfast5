@@ -82,11 +82,7 @@ class WoodenPressurePlate extends Transparent{
 		}
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		if ($type == Level::BLOCK_UPDATE_SCHEDULED) {
 			$now = microtime(true);
 			if ($this->meta > 0 && ($this->lastInteractWithEntity < 0 || $now - $this->lastInteractWithEntity >= 1) && count($this->level->getCollidingEntities($this->getBoundingBox())) <= 0) {

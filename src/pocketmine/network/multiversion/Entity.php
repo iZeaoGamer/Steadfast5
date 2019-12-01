@@ -6,7 +6,6 @@ use pocketmine\Server;
 
 abstract class Entity {
 	
-	const NAME_NONE = ":";
 	const ID_NONE = 1;
 	
 	/** Drop */
@@ -124,7 +123,7 @@ abstract class Entity {
 	const ID_BALOON = 107; //balloon
 	
 	private static $idToName = [
-		self::ID_NONE => self::NAME_NONE,
+		self::ID_NONE => ":",
 		self::ID_ITEM => "minecraft:item",
 		self::ID_EXP_ORB => "minecraft:xp_orb",
 		self::ID_TNT => "minecraft:tnt",

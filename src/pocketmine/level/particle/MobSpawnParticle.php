@@ -23,7 +23,6 @@ namespace pocketmine\level\particle;
 
 use pocketmine\network\protocol\LevelEventPacket;
 use pocketmine\math\Vector3;
-use pocketmine\Server;
 
 class MobSpawnParticle extends Particle{
 	
@@ -35,14 +34,15 @@ class MobSpawnParticle extends Particle{
 		$this->width = $width;
 		$this->height = $height;
 	}
-
-	public function spawnFor($players) {
+	
+	public function encode(){
 		$pk = new LevelEventPacket;
 		$pk->evid = LevelEventPacket::EVENT_PARTICLE_SPAWN;
 		$pk->x = $this->x;
 		$pk->y = $this->y;
 		$pk->z = $this->z;
 		$pk->data = ($this->width & 0xff) + (($this->height & 0xff) << 8);
-		Server::broadcastPacket($players, $pk);
+		
+		return $pk;
 	}
 }

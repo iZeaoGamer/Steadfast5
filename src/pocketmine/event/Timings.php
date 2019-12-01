@@ -30,8 +30,6 @@ use pocketmine\tile\Tile;
 
 abstract class Timings{
 
-    /** @var TimingsHandler */
-    public static $playerNetworkTimer;
 	/** @var TimingsHandler */
 	public static $serverTickTimer;
 	/** @var TimingsHandler */
@@ -97,7 +95,6 @@ abstract class Timings{
 			return;
 		}
 
-        self::$playerNetworkTimer = new TimingsHandler("Player Network Send");
 		self::$serverTickTimer = new TimingsHandler("** Full Server Tick");
 		self::$playerListTimer = new TimingsHandler("Player List");
 		self::$connectionTimer = new TimingsHandler("Connection Handler");
@@ -132,10 +129,13 @@ abstract class Timings{
 		self::$timerLoginPacket = new TimingsHandler("timerLoginPacket");		
 		self::$timerMovePacket = new TimingsHandler("timerMovePacket");
 		self::$timerMobEqipmentPacket = new TimingsHandler("timerMobEqipmentPacket");
+		self::$timerUseItemPacket = new TimingsHandler("timerUseItemPacket");
 		self::$timerActionPacket = new TimingsHandler("timerActionPacket");
+		self::$timerRemoveBlockPacket = new TimingsHandler("timerRemoveBlockPacket");
 		self::$timerInteractPacket = new TimingsHandler("timerInteractPacket");
 		self::$timerAnimatePacket = new TimingsHandler("timerAnimatePacket");
 		self::$timerEntityEventPacket = new TimingsHandler("timerEntityEventPacket");
+		self::$timerDropItemPacket = new TimingsHandler("timerDropItemPacket");
 		self::$timerTextPacket = new TimingsHandler("timerTextPacket");
 		self::$timerContainerClosePacket = new TimingsHandler("timerContainerClosePacket");
 		self::$timerCraftingEventPacket = new TimingsHandler("timerCraftingEventPacket");
@@ -154,10 +154,13 @@ abstract class Timings{
 	public static $timerLoginPacket;	
 	public static $timerMovePacket;
 	public static $timerMobEqipmentPacket;
+	public static $timerUseItemPacket;
 	public static $timerActionPacket;
+	public static $timerRemoveBlockPacket;
 	public static $timerInteractPacket;
 	public static $timerAnimatePacket;
 	public static $timerEntityEventPacket;
+	public static $timerDropItemPacket;
 	public static $timerTextPacket;
 	public static $timerContainerClosePacket;
 	public static $timerCraftingEventPacket;

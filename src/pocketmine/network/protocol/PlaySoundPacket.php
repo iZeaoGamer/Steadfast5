@@ -1,35 +1,46 @@
 <?php
 
-
 namespace pocketmine\network\protocol;
 
-class PlaySoundPacket extends PEPacket {
+#include <rules/DataPacket.h>
 
-    const NETWORK_ID = Info120::PLAY_SOUND_PACKET;
-    const PACKET_NAME = "PLAY_SOUND_PACKET";
+class PlaySoundPacket extends DataPacket {
 
-    public $string1;
+	const NETWORK_ID = Info310::PLAY_SOUND_PACKET;
 
-    public $x;
-    public $y;
-    public $z;
+	public $sound;
+	public $x;
+	public $y;
+	public $z;
+	public $volume;
+	public $float;
 
-    public $float1;
-    public $float2;
+	/**
+	 *
+	 */
+	public function decode(){
+		$this->sound = $this->getString();
+		$this->getBlockPos($this->x, $this->y, $this->z);
+		$this->volume = $this->getFloat();
+		$this->float = $this->getFloat();
+	}
 
-    public function decode($playerProtocol){
-        $this->string1 = $this->getString();
-        $this->getBlockPosition($this->x, $this->y, $this->z);
-        $this->float1 = $this->getLFloat();
-        $this->float2 = $this->getLFloat();
-    }
+	/**
+	 *
+	 */
+	public function encode(){
+		$this->reset();
+		$this->putString($this->sound);
+		$this->putBlockPos($this->x, $this->y, $this->z);
+		$this->putFloat($this->volume);
+		$this->putFloat($this->float);
+	}
 
-    public function encode($playerProtocol){
-        $this->reset($playerProtocol);
-        $this->putString($this->string1);
-        $this->putBlockPosition($this->x, $this->y, $this->z);
-        $this->putLFloat($this->float1);
-        $this->putLFloat($this->float2);
-    }
+	/**
+	 * @return PacketName|string
+	 */
+	public function getName(){
+		return "PlaySoundPacket";
+	}
 
 }

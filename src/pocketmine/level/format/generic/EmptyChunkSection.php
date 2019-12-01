@@ -51,6 +51,14 @@ class EmptyChunkSection implements ChunkSection{
 		return "\x00\x00\x00\x00\x00\x00\x00\x00";
 	}
 
+	final public function getBlockSkyLightColumn($x, $z){
+		return "\xff\xff\xff\xff\xff\xff\xff\xff";
+	}
+
+	final public function getBlockLightColumn($x, $z){
+		return "\x00\x00\x00\x00\x00\x00\x00\x00";
+	}
+
 	final public function getFullBlock($x, $y, $z){
 		return 0;
 	}
@@ -92,4 +100,19 @@ class EmptyChunkSection implements ChunkSection{
 		throw new ChunkException("Tried to modify an empty Chunk");
 	}
 
+	final public function getBlockLight($x, $y, $z){
+		return 0;
+	}
+
+	final public function setBlockLight($x, $y, $z, $level){
+		throw new ChunkException("Tried to modify an empty Chunk");
+	}
+
+	final public function getBlockSkyLight($x, $y, $z){
+		return 0;
+	}
+
+	final public function setBlockSkyLight($x, $y, $z, $level){
+		throw new ChunkException("Tried to modify an empty Chunk");
+	}
 }

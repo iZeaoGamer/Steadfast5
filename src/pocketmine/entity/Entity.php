@@ -546,7 +546,7 @@ abstract class Entity extends Location implements Metadatable{
 			if ($className::NETWORK_ID !== -1) {
 				self::$knownEntities[$className::NETWORK_ID] = $className;
 				$peEntityName = Multiversion::getNameByID($className::NETWORK_ID);
-				if ($peEntityName != Multiversion::NAME_NONE) {
+				if ($peEntityName != ":") {
 					self::$knownEntities[$peEntityName] = $className;
 				}
 			} else if (!$force) {

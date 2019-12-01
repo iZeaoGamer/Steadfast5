@@ -28,7 +28,6 @@ use pocketmine\network\protocol\AddEntityPacket;
 use pocketmine\network\protocol\RemoveEntityPacket;
 use pocketmine\network\protocol\AddPlayerPacket;
 use pocketmine\utils\UUID;
-use pocketmine\Server;
 
 class FloatingTextParticle extends Particle{
 	//TODO: HACK!
@@ -65,7 +64,7 @@ class FloatingTextParticle extends Particle{
 		$this->invisible = (bool) $value;
 	}
 
-	public function spawnFor($players) {
+	public function encode(){
 		$p = [];
 
 		if($this->entityId === null){
@@ -100,8 +99,6 @@ class FloatingTextParticle extends Particle{
 			$p[] = $pk;
 		}
 		
-		foreach ($p as $pk) {
-			Server::broadcastPacket($players, $pk);
-		}
+		return $p;
 	}
 }

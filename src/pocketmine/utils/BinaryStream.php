@@ -4,17 +4,12 @@ namespace pocketmine\utils;
 
 use pocketmine\item\Item;
 use pocketmine\nbt\NBT;
-use pocketmine\network\protocol\Info;
-use function chr;
-use function ord;
-use function strlen;
-use function substr;
 
 class BinaryStream {
-
-    private $offset = 0;
-    public $buffer = "";
-
+	
+	private $offset;
+	private $buffer;
+	
 	private function writeErrorLog($depth = 3) {
 		$depth = max($depth, 3);
 		$backtrace = debug_backtrace(2, $depth);
@@ -52,14 +47,8 @@ class BinaryStream {
 	}
 
 	public function reset() {
-        $this->buffer = "";
-        $this->offset = 0;
-    }
-
-    public function rewind()
-    {
-        $this->offset = 0;
-    }
+		$this->setBuffer();
+	}
 
 	public function setBuffer($buffer = "", $offset = 0) {
 		$this->buffer = $buffer;
@@ -79,31 +68,15 @@ class BinaryStream {
 	}
 
 	public function get($len) {
-        if($len === 0){
-            return "";
-        }
+		if ($len < 0) {
+			$this->offset = strlen($this->buffer) - 1;
+			return "";
+		} else if ($len === true) {
+			return substr($this->buffer, $this->offset);
+		}
 
-        $buflen = strlen($this->buffer);
-        if($len === true){
-            $str = substr($this->buffer, $this->offset);
-            $this->offset = $buflen;
-            return $str;
-        }
-        if($len < 0){
-            $this->offset = $buflen - 1;
-            return "";
-        }
-        $remaining = $buflen - $this->offset;
-        if($remaining < $len){
-            throw new \Exception("Not enough bytes left in buffer: need $len, have $remaining");
-        }
-
-        return $len === 1 ? $this->buffer[$this->offset++] : substr($this->buffer, ($this->offset += $len) - $len, $len);
+		return $len === 1 ? $this->buffer{$this->offset++} : substr($this->buffer, ($this->offset += $len) - $len, $len);
 	}
-
-    public function getBool() : bool{
-        return $this->get(1) !== "\x00";
-    }
 
 	public function put($str) {
 		$this->buffer .= $str;
@@ -190,7 +163,7 @@ class BinaryStream {
 	}
 
 	public function getByte() {
-		return ord($this->buffer[$this->offset++]);
+		return ord($this->buffer{$this->offset++});
 	}
 
 	public function putByte($v) {
@@ -227,18 +200,9 @@ class BinaryStream {
 		$this->putLInt($uuid->getPart(2));
 	}
 
-    public function getRemaining() : string{
-        $str = substr($this->buffer, $this->offset);
-        if($str === false){
-            throw new \Exception("No bytes left to read");
-        }
-        $this->offset = strlen($this->buffer);
-        return $str;
-    }
-
-	public function getSlot($playerProtocol) {
-		$id = $this->getSignedVarInt();
-		if ($id == 0) {
+	public function getSlot($playerProtocol) {		
+		$id = $this->getSignedVarInt();		
+		if ($id <= 0) {
 			return Item::get(Item::AIR, 0, 0);
 		}
 		
@@ -247,35 +211,22 @@ class BinaryStream {
 		$count = $aux & 0xff;
 		
 		$nbtLen = $this->getLShort();		
-		$nbt = "";	
+		$nbt = "";		
 		if ($nbtLen > 0) {
 			$nbt = $this->get($nbtLen);
 		} elseif($nbtLen == -1) {
 			$nbtCount = $this->getVarInt();
-			if ($nbtCount > 100) {
-				throw new \Exception('get slot nbt error, too many count');
-			}
 			for ($i = 0; $i < $nbtCount; $i++) {
 				$nbtTag = new NBT(NBT::LITTLE_ENDIAN);
 				$offset = $this->getOffset();
-				if ($offset > strlen($this->getBuffer())) {
-					throw new \Exception('get slot nbt error');
-				}
 				$nbtTag->read(substr($this->getBuffer(), $offset), false, true);
 				$nbt = $nbtTag->getData();
 				$this->setOffset($offset + $nbtTag->getOffset());
 			}
 		}
-		$item = Item::get($id, $meta, $count, $nbt);
-		$canPlaceOnBlocksCount = $this->getSignedVarInt();
-		for ($i = 0; $i < $canPlaceOnBlocksCount; $i++) {
-			$item->addCanPlaceOnBlocks($this->getString());
-		}
-		$canDestroyBlocksCount = $this->getSignedVarInt();
-		for ($i = 0; $i < $canDestroyBlocksCount; $i++) {
-			$item->addCanDestroyBlocks($this->getString());
-		}
-		return $item;
+		$this->setOffset($this->getOffset() + 2);
+
+		return Item::get($id, $meta, $count, $nbt);
 	}
 
 	public function putSlot(Item $item, $playerProtocol) {
@@ -288,58 +239,12 @@ class BinaryStream {
 		$nbt = $item->getCompound();	
 		$this->putLShort(strlen($nbt));
 		$this->put($nbt);
-		$canPlaceOnBlocks = $item->getCanPlaceOnBlocks();
-		$canDestroyBlocks = $item->getCanDestroyBlocks();
-		$this->putSignedVarInt(count($canPlaceOnBlocks));
-		foreach ($canPlaceOnBlocks as $blockName) {
-			$this->putString($blockName);
-		}
-		$this->putSignedVarInt(count($canDestroyBlocks));
-		foreach ($canDestroyBlocks as $blockName) {
-			$this->putString($blockName);
-		}
-	}
-
-	public function getBlockPosition(&$x, &$y, &$z){
-		$x = $this->getVarInt();
-		$y = $this->getUnsignedVarInt();
-		$z = $this->getVarInt();
-	}
-
-	public function putBlockPosition($x, $y, $z){
-		$this->putVarInt($x);
-		$this->putUnsignedVarInt($y);
-		$this->putVarInt($z);
-	}
-
-	public function getBlockCoords(&$x, &$y, &$z){
-		$x = $this->getVarInt();
-		$y = $this->getUnsignedVarInt();
-		$z = $this->getVarInt();
-	}
-
-	public function putBlockCoords($x, $y, $z){
-		$this->putVarInt($x);
-		$this->putUnsignedVarInt($y);
-		$this->putVarInt($z);
+		$this->putByte(0);
+		$this->putByte(0);
 	}
 
 	public function feof() {
 		return !isset($this->buffer{$this->offset});
-	}
-
-/**
-	 * Reads an unsigned varint from the stream.
-	 */
-	public function getUnsignedVarInt(){
-		return Binary::readUnsignedVarInt($this);
-	}
-
-	/**
-	 * Writes an unsigned varint to the stream.
-	 */
-	public function putUnsignedVarInt($v){
-		$this->put(Binary::writeUnsignedVarInt($v));
 	}
 	
 	
@@ -370,10 +275,6 @@ class BinaryStream {
 	public function putVarInt($v) {
 		$this->put(Binary::writeVarInt($v));
 	}
-	
-	public function putBool($v) {
-		$this->put(Binary::writeBool($v));
-	}
 
 	public function getString(){
 		return $this->get($this->getVarInt());
@@ -383,150 +284,149 @@ class BinaryStream {
 		$this->putVarInt(strlen($v));
 		$this->put($v);
 	}
-	
-	public function putSerializedSkin($playerProtocol, $skinId, $skinData, $skinGeomtryName, $skinGeomtryData, $capeData, $additionalSkinData) {
-		if (!isset($additionalSkinData['PersonaSkin']) || !$additionalSkinData['PersonaSkin']) {
-			$additionalSkinData = [];
-		}
-		if (isset($additionalSkinData['skinData'])) {
-			$skinData = $additionalSkinData['skinData'];
-		}
-		if (isset($additionalSkinData['skinGeomtryName'])) {
-			$skinGeomtryName = $additionalSkinData['skinGeomtryName'];
-		}
-		if (isset($additionalSkinData['skinGeomtryData'])) {
-			$skinGeomtryData = $additionalSkinData['skinGeomtryData'];
-		}
-		if (empty($skinGeomtryName)) {
-			$skinGeomtryName = "geometry.humanoid.custom";
-		}
-		$this->putString($skinId);
-		$this->putString(isset($additionalSkinData['SkinResourcePatch']) ? $additionalSkinData['SkinResourcePatch'] : '{"geometry" : {"default" : "' . $skinGeomtryName . '"}}');
-		if (isset($additionalSkinData['SkinImageHeight']) && isset($additionalSkinData['SkinImageWidth'])) {
-			$width = $additionalSkinData['SkinImageWidth'];
-			$height = $additionalSkinData['SkinImageHeight'];
-		} else {
-			$width = 64;
-			$height = strlen($skinData) >> 8;
-			while ($height > $width) {
-				$width <<= 1;
-				$height >>= 1;
-			}
-		}
-		$this->putLInt($width);
-		$this->putLInt($height);
-		$this->putString($skinData);
+    public function putSerializedSkin($playerProtocol, $skinId, $skinData, $skinGeomtryName, $skinGeomtryData, $capeData, $additionalSkinData) {
+        if (!isset($additionalSkinData['PersonaSkin']) || !$additionalSkinData['PersonaSkin']) {
+            $additionalSkinData = [];
+        }
+        if (isset($additionalSkinData['skinData'])) {
+            $skinData = $additionalSkinData['skinData'];
+        }
+        if (isset($additionalSkinData['skinGeomtryName'])) {
+            $skinGeomtryName = $additionalSkinData['skinGeomtryName'];
+        }
+        if (isset($additionalSkinData['skinGeomtryData'])) {
+            $skinGeomtryData = $additionalSkinData['skinGeomtryData'];
+        }
+        if (empty($skinGeomtryName)) {
+            $skinGeomtryName = "geometry.humanoid.custom";
+        }
+        $this->putString($skinId);
+        $this->putString(isset($additionalSkinData['SkinResourcePatch']) ? $additionalSkinData['SkinResourcePatch'] : '{"geometry" : {"default" : "' . $skinGeomtryName . '"}}');
+        if (isset($additionalSkinData['SkinImageHeight']) && isset($additionalSkinData['SkinImageWidth'])) {
+            $width = $additionalSkinData['SkinImageWidth'];
+            $height = $additionalSkinData['SkinImageHeight'];
+        } else {
+            $width = 64;
+            $height = strlen($skinData) >> 8;
+            while ($height > $width) {
+                $width <<= 1;
+                $height >>= 1;
+            }
+        }
+        $this->putLInt($width);
+        $this->putLInt($height);
+        $this->putString($skinData);
 
-		if (isset($additionalSkinData['AnimatedImageData'])) {
-			$this->putLInt(count($additionalSkinData['AnimatedImageData']));
-			foreach ($additionalSkinData['AnimatedImageData'] as $animation) {
-				$this->putLInt($animation['ImageWidth']);
-				$this->putLInt($animation['ImageHeight']);
-				$this->putString($animation['Image']);
-				$this->putLInt($animation['Type']);
-				$this->putLFloat($animation['Frames']);
-			}
-		} else {
-			$this->putLInt(0);
-		}
-			
-		if (empty($capeData)) {
-			$this->putLInt(0);
-			$this->putLInt(0);
-			$this->putString('');
-		} else {
-			if (isset($additionalSkinData['CapeImageWidth']) && isset($additionalSkinData['CapeImageHeight'])) {
-				$width = $additionalSkinData['CapeImageWidth'];
-				$height = $additionalSkinData['CapeImageHeight'];
-			} else {
-				$width = 1;
-				$height = strlen($capeData) >> 2;
-				while ($height > $width) {
-					$width <<= 1;
-					$height >>= 1;
-				}
-			}
-			$this->putLInt($width);
-			$this->putLInt($height);
-			$this->putString($capeData);
-		}
+        if (isset($additionalSkinData['AnimatedImageData'])) {
+            $this->putLInt(count($additionalSkinData['AnimatedImageData']));
+            foreach ($additionalSkinData['AnimatedImageData'] as $animation) {
+                $this->putLInt($animation['ImageWidth']);
+                $this->putLInt($animation['ImageHeight']);
+                $this->putString($animation['Image']);
+                $this->putLInt($animation['Type']);
+                $this->putLFloat($animation['Frames']);
+            }
+        } else {
+            $this->putLInt(0);
+        }
 
-		$this->putString($skinGeomtryData); // Skin Geometry Data
-		$this->putString(isset($additionalSkinData['SkinAnimationData']) ? $additionalSkinData['SkinAnimationData'] : ''); // Serialized Animation Data
+        if (empty($capeData)) {
+            $this->putLInt(0);
+            $this->putLInt(0);
+            $this->putString('');
+        } else {
+            if (isset($additionalSkinData['CapeImageWidth']) && isset($additionalSkinData['CapeImageHeight'])) {
+                $width = $additionalSkinData['CapeImageWidth'];
+                $height = $additionalSkinData['CapeImageHeight'];
+            } else {
+                $width = 1;
+                $height = strlen($capeData) >> 2;
+                while ($height > $width) {
+                    $width <<= 1;
+                    $height >>= 1;
+                }
+            }
+            $this->putLInt($width);
+            $this->putLInt($height);
+            $this->putString($capeData);
+        }
 
-		$this->putByte(isset($additionalSkinData['PremiumSkin']) ? $additionalSkinData['PremiumSkin'] : 0); // Is Premium Skin 
-		$this->putByte(isset($additionalSkinData['PersonaSkin']) ? $additionalSkinData['PersonaSkin'] : 0); // Is Persona Skin 
-		$this->putByte(isset($additionalSkinData['CapeOnClassicSkin']) ? $additionalSkinData['CapeOnClassicSkin'] : 0); // Is Persona Cape on Classic Skin 
-		
-		$this->putString(isset($additionalSkinData['CapeId']) ? $additionalSkinData['CapeId'] : '');
-		$uniqId = $skinId . $skinGeomtryName . "-" . microtime(true);
-		$this->putString($uniqId); // Full Skin ID		
-	}
+        $this->putString($skinGeomtryData); // Skin Geometry Data
+        $this->putString(isset($additionalSkinData['SkinAnimationData']) ? $additionalSkinData['SkinAnimationData'] : ''); // Serialized Animation Data
 
-	public function getSerializedSkin($playerProtocol, &$skinId, &$skinData, &$skinGeomtryName, &$skinGeomtryData, &$capeData, &$additionalSkinData) {		
-		$skinId = $this->getString();
-		$additionalSkinData['SkinResourcePatch'] = $this->getString();
-		$geometryData = json_decode($additionalSkinData['SkinResourcePatch'], true);
-		$skinGeomtryName = isset($geometryData['geometry']['default']) ? $geometryData['geometry']['default'] : '';
-		
-		$additionalSkinData['SkinImageWidth'] = $this->getLInt();
-		$additionalSkinData['SkinImageHeight'] = $this->getLInt();
-		$skinData = $this->getString();
-		
-		$animationCount = $this->getLInt();
-		$additionalSkinData['AnimatedImageData'] = [];
-		for ($i = 0; $i < $animationCount; $i++) {
-			$additionalSkinData['AnimatedImageData'][] = [
-				'ImageWidth' => $this->getLInt(),
-				'ImageHeight' => $this->getLInt(),
-				'Image' => $this->getString(),
-				'Type' => $this->getLInt(),
-				'Frames' => $this->getLFloat(),
-			];
-		}
-		
-		$additionalSkinData['CapeImageWidth'] = $this->getLInt();
-		$additionalSkinData['CapeImageHeight'] = $this->getLInt();
-		$capeData = $this->getString();
-		
-		$skinGeomtryData = $this->getString();
-		if (strpos($skinGeomtryData, 'null') === 0) {
-			$skinGeomtryData = '';
-		}
-		$additionalSkinData['SkinAnimationData'] = $this->getString();
+        $this->putByte(isset($additionalSkinData['PremiumSkin']) ? $additionalSkinData['PremiumSkin'] : 0); // Is Premium Skin
+        $this->putByte(isset($additionalSkinData['PersonaSkin']) ? $additionalSkinData['PersonaSkin'] : 0); // Is Persona Skin
+        $this->putByte(isset($additionalSkinData['CapeOnClassicSkin']) ? $additionalSkinData['CapeOnClassicSkin'] : 0); // Is Persona Cape on Classic Skin
 
-		$additionalSkinData['PremiumSkin'] = $this->getByte();
-		$additionalSkinData['PersonaSkin'] = $this->getByte();
-		$additionalSkinData['CapeOnClassicSkin'] = $this->getByte();
-		
-		$additionalSkinData['CapeId'] = $this->getString();
-		$this->getString(); // Full Skin ID	
-	}
+        $this->putString(isset($additionalSkinData['CapeId']) ? $additionalSkinData['CapeId'] : '');
+        $uniqId = $skinId . $skinGeomtryName . "-" . microtime(true);
+        $this->putString($uniqId); // Full Skin ID
+    }
 
-	public function checkSkinData(&$skinData, &$skinGeomtryName, &$skinGeomtryData, &$additionalSkinData) {
-		if (isset($additionalSkinData['PersonaSkin']) && $additionalSkinData['PersonaSkin']) {
-			static $defaultSkins = [];
-			if (empty($defaultSkins)) {
-				$defaultSkins[] = file_get_contents(__DIR__ . "/defaultSkins/Alex.dat");
-				$defaultSkins[] = file_get_contents(__DIR__ . "/defaultSkins/Steve.dat");
-			}
-			$additionalSkinData['skinData'] = $skinData;
-			$additionalSkinData['skinGeomtryName'] = $skinGeomtryName;
-			$additionalSkinData['skinGeomtryData'] = $skinGeomtryData;
-			$skinData = $defaultSkins[array_rand($defaultSkins)];
-			$skinGeomtryData = '';
-			$skinGeomtryName = '';
-		}
-	}
-	
-	public function prepareGeometryDataForOld($skinGeometryData) {
-		if (!empty($skinGeometryData)) {
-			if (($tempData = @json_decode($skinGeometryData, true))) {
-				unset($tempData["format_version"]);
-				return json_encode($tempData);
-			}
-		}
-		return $skinGeometryData;
-	}
-	
+    public function getSerializedSkin($playerProtocol, &$skinId, &$skinData, &$skinGeomtryName, &$skinGeomtryData, &$capeData, &$additionalSkinData) {
+        $skinId = $this->getString();
+        $additionalSkinData['SkinResourcePatch'] = $this->getString();
+        $geometryData = json_decode($additionalSkinData['SkinResourcePatch'], true);
+        $skinGeomtryName = isset($geometryData['geometry']['default']) ? $geometryData['geometry']['default'] : '';
+
+        $additionalSkinData['SkinImageWidth'] = $this->getLInt();
+        $additionalSkinData['SkinImageHeight'] = $this->getLInt();
+        $skinData = $this->getString();
+
+        $animationCount = $this->getLInt();
+        $additionalSkinData['AnimatedImageData'] = [];
+        for ($i = 0; $i < $animationCount; $i++) {
+            $additionalSkinData['AnimatedImageData'][] = [
+                'ImageWidth' => $this->getLInt(),
+                'ImageHeight' => $this->getLInt(),
+                'Image' => $this->getString(),
+                'Type' => $this->getLInt(),
+                'Frames' => $this->getLFloat(),
+            ];
+        }
+
+        $additionalSkinData['CapeImageWidth'] = $this->getLInt();
+        $additionalSkinData['CapeImageHeight'] = $this->getLInt();
+        $capeData = $this->getString();
+
+        $skinGeomtryData = $this->getString();
+        if (strpos($skinGeomtryData, 'null') === 0) {
+            $skinGeomtryData = '';
+        }
+        $additionalSkinData['SkinAnimationData'] = $this->getString();
+
+        $additionalSkinData['PremiumSkin'] = $this->getByte();
+        $additionalSkinData['PersonaSkin'] = $this->getByte();
+        $additionalSkinData['CapeOnClassicSkin'] = $this->getByte();
+
+        $additionalSkinData['CapeId'] = $this->getString();
+        $this->getString(); // Full Skin ID
+    }
+
+    public function checkSkinData(&$skinData, &$skinGeomtryName, &$skinGeomtryData, &$additionalSkinData) {
+        if (isset($additionalSkinData['PersonaSkin']) && $additionalSkinData['PersonaSkin']) {
+            static $defaultSkins = [];
+            if (empty($defaultSkins)) {
+                $defaultSkins[] = file_get_contents(__DIR__ . "/defaultSkins/Alex.dat");
+                $defaultSkins[] = file_get_contents(__DIR__ . "/defaultSkins/Steve.dat");
+            }
+            $additionalSkinData['skinData'] = $skinData;
+            $additionalSkinData['skinGeomtryName'] = $skinGeomtryName;
+            $additionalSkinData['skinGeomtryData'] = $skinGeomtryData;
+            $skinData = $defaultSkins[array_rand($defaultSkins)];
+            $skinGeomtryData = '';
+            $skinGeomtryName = '';
+        }
+    }
+
+    public function prepareGeometryDataForOld($skinGeometryData) {
+        if (!empty($skinGeometryData)) {
+            if (($tempData = @json_decode($skinGeometryData, true))) {
+                unset($tempData["format_version"]);
+                return json_encode($tempData);
+            }
+        }
+        return $skinGeometryData;
+    }
+
 }

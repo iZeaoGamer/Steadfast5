@@ -29,13 +29,15 @@ abstract class PEPacket extends DataPacket {
 			$subclientIds = $header >> 10;
 			$this->senderSubClientID = $subclientIds & 0x03;
 			$this->targetSubClientID = ($subclientIds >> 2) & 0x03;
-		} else {
+		} else if ($playerProtocol >= Info::PROTOCOL_120) {
 			$this->getByte(); // packetID
 			$this->senderSubClientID = $this->getByte();
 			$this->targetSubClientID = $this->getByte();
 			if ($this->senderSubClientID > 4 || $this->targetSubClientID > 4) {
 				throw new \Exception(get_class($this) . ": Packet decode headers error");
 			}
+		} else {
+			$this->getByte(); // packetID
 		}
 	}
 
@@ -47,8 +49,10 @@ abstract class PEPacket extends DataPacket {
 		if ($playerProtocol < Info::PROTOCOL_280) {
 			parent::reset();
 			$this->putByte(self::$packetsIds[$playerProtocol][$this::PACKET_NAME]);	
-			$this->putByte($this->senderSubClientID);
-			$this->putByte($this->targetSubClientID);
+			if ($playerProtocol >= Info::PROTOCOL_120) {
+				$this->putByte($this->senderSubClientID);
+				$this->putByte($this->targetSubClientID);
+			}
 		} else {
 			parent::reset();
 			$packetID = self::$packetsIds[$playerProtocol][$this::PACKET_NAME];
@@ -59,34 +63,34 @@ abstract class PEPacket extends DataPacket {
 	
 	public final static function convertProtocol($protocol) {
 		switch ($protocol) {
-			case Info::PROTOCOL_390:
-			case Info::PROTOCOL_389:
-			case Info::PROTOCOL_388:
-				return Info::PROTOCOL_389;
-			case Info::PROTOCOL_387:
-			case Info::PROTOCOL_386:
-				return Info::PROTOCOL_386;
-			case Info::PROTOCOL_385:
-				return Info::PROTOCOL_385;
-			case Info::PROTOCOL_371:
-			case Info::PROTOCOL_370:
-				return Info::PROTOCOL_370;
-			case Info::PROTOCOL_361:
-				return Info::PROTOCOL_361;
-			case Info::PROTOCOL_360:
-				return Info::PROTOCOL_360;
-			case Info::PROTOCOL_354:
-				return Info::PROTOCOL_354;
-			case Info::PROTOCOL_353:
-			case Info::PROTOCOL_352:
-			case Info::PROTOCOL_351:
-				return Info::PROTOCOL_351;
-			case Info::PROTOCOL_350:
-				return Info::PROTOCOL_350;
-			case Info::PROTOCOL_342:
-				return Info::PROTOCOL_342;
-			case Info::PROTOCOL_340:
-				return Info::PROTOCOL_340;
+            case Info::PROTOCOL_390:
+            case Info::PROTOCOL_389:
+            case Info::PROTOCOL_388:
+                return Info::PROTOCOL_389;
+            case Info::PROTOCOL_387:
+            case Info::PROTOCOL_386:
+                return Info::PROTOCOL_386;
+            case Info::PROTOCOL_385:
+                return Info::PROTOCOL_385;
+            case Info::PROTOCOL_371:
+            case Info::PROTOCOL_370:
+                return Info::PROTOCOL_370;
+            case Info::PROTOCOL_361:
+                return Info::PROTOCOL_361;
+            case Info::PROTOCOL_360:
+                return Info::PROTOCOL_360;
+            case Info::PROTOCOL_354:
+                return Info::PROTOCOL_354;
+            case Info::PROTOCOL_353:
+            case Info::PROTOCOL_352:
+            case Info::PROTOCOL_351:
+                return Info::PROTOCOL_351;
+            case Info::PROTOCOL_350:
+                return Info::PROTOCOL_350;
+            case Info::PROTOCOL_342:
+                return Info::PROTOCOL_342;
+            case Info::PROTOCOL_340:
+                return Info::PROTOCOL_340;
 			case Info::PROTOCOL_332:
 				return Info::PROTOCOL_332;
 			case Info::PROTOCOL_331:
@@ -129,8 +133,18 @@ abstract class PEPacket extends DataPacket {
 				return Info::PROTOCOL_220;
 			case Info::PROTOCOL_200:
 				return Info::PROTOCOL_200;
-			default:
+			case Info::PROTOCOL_134:
+			case Info::PROTOCOL_135:
+			case Info::PROTOCOL_136:
+			case Info::PROTOCOL_137:
+			case Info::PROTOCOL_140:
+			case Info::PROTOCOL_141:
+			case Info::PROTOCOL_150:
+			case Info::PROTOCOL_160:
+			case Info::PROTOCOL_201:
 				return Info::PROTOCOL_120;
+			default:
+				return Info::PROTOCOL_110;
 		}
 	}
 	

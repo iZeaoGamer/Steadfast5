@@ -24,7 +24,6 @@
  */
 namespace pocketmine\block;
 
-use pocketmine\block\Solid;
 use pocketmine\entity\Entity;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
@@ -40,47 +39,7 @@ use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 
 
-class Block extends Position implements Metadatable {
-	
-	/** REDSTONE CONSTS BEGIN **/
-	const REDSTONE_POWER_MIN = 0;
-	const REDSTONE_POWER_MAX = 15;
-	
-	const DIRECTION_NONE = -1;
-	const DIRECTION_BOTTOM = 0;
-	const DIRECTION_TOP = 1;
-	const DIRECTION_NORTH = 2;
-	const DIRECTION_SOUTH = 3;
-	const DIRECTION_WEST = 4;
-	const DIRECTION_EAST = 5;
-	const DIRECTION_SELF = 6;
-	
-	/** REDSTONE CONSTS END **/
-	
-	const FACE_DOWN = 0;
-	const FACE_UP = 1;
-	const FACE_NORTH = 2;
-	const FACE_SOUTH = 3;
-	const FACE_WEST = 4;
-	const FACE_EAST = 5;
-
-	const COLOR_WHITE = 0;
-	const COLOR_ORANGE = 1;
-	const COLOR_MAGENTA = 2;
-	const COLOR_LIGHT_BLUE = 3;
-	const COLOR_YELLOW = 4;
-	const COLOR_LIME = 5;
-	const COLOR_PINK = 6;
-	const COLOR_GRAY = 7;
-	const COLOR_LIGHT_GRAY = 8;
-	const COLOR_CYAN = 9;
-	const COLOR_PURPLE = 10;
-	const COLOR_BLUE = 11;
-	const COLOR_BROWN = 12;
-	const COLOR_GREEN = 13;
-	const COLOR_RED = 14;
-	const COLOR_BLACK = 15;
-
+class Block extends Position implements Metadatable{
 	const AIR = 0;
 	const STONE = 1;
 	const GRASS = 2;
@@ -353,7 +312,7 @@ class Block extends Position implements Metadatable {
 	const MAGMA = 213;
 	const NETHER_WART_BLOCK_BLOCK = 214;
 	const RED_NETHER_BRICK = 215;
-	const RED_NETHER_BRICKS = 215;
+    const RED_NETHER_BRICKS = 215;
 	const BONE_BLOCK = 216;
 	// 217 doesn't exist in client (at least in 1.2.13)
 	const SHULKER_BOX = 218;
@@ -476,7 +435,7 @@ class Block extends Position implements Metadatable {
 			self::$list[self::LAPIS_ORE] = LapisOre::class;
 			self::$list[self::LAPIS_BLOCK] = Lapis::class;
 			self::$list[self::SANDSTONE] = Sandstone::class;
-			self::$list[self::RED_SANDSTONE] = RedSandstone::class;
+            self::$list[self::RED_SANDSTONE] = RedSandstone::class;
 			self::$list[self::BED_BLOCK] = Bed::class;
 			self::$list[self::COBWEB] = Cobweb::class;
 			self::$list[self::TALL_GRASS] = TallGrass::class;
@@ -538,8 +497,8 @@ class Block extends Position implements Metadatable {
 
 			self::$list[self::TRAPDOOR] = Trapdoor::class;
 			self::$list[self::IRON_TRAPDOOR] = IronTrapdoor::class;
+            self::$list[self::MONSTER_EGG] = MonsterEgg::class;
 
-			self::$list[self::MONSTER_EGG] = MonsterEgg::class;
 			self::$list[self::STONE_BRICKS] = StoneBricks::class;
 
 			self::$list[self::IRON_BARS] = IronBars::class;
@@ -555,7 +514,7 @@ class Block extends Position implements Metadatable {
 			self::$list[self::MYCELIUM] = Mycelium::class;
 			self::$list[self::WATER_LILY] = WaterLily::class;
 			self::$list[self::NETHER_BRICKS] = NetherBrick::class;
-			self::$list[self::RED_NETHER_BRICKS] = RedNetherBrick::class;
+            self::$list[self::RED_NETHER_BRICKS] = RedNetherBrick::class;
 			self::$list[self::NETHER_BRICK_FENCE] = NetherBrickFence::class;
 
 			self::$list[self::NETHER_BRICKS_STAIRS] = NetherBrickStairs::class;
@@ -662,18 +621,18 @@ class Block extends Position implements Metadatable {
 			
 			self::$list[self::REDSTONE_TORCH] = RedstoneTorch::class;
 			self::$list[self::REDSTONE_TORCH_ACTIVE] = RedstoneTorchActive::class;
-			self::$list[self::PISTON] = Piston::class;
-			self::$list[self::PISTON_HEAD] = PistonHead::class;
-			self::$list[self::STICKY_PISTON] = StickyPiston::class;
-			
-			self::$list[self::DROPPER] = Dropper::class;
-			self::$list[self::DISPENSER] = Dispenser::class;
-			self::$list[self::HOPPER_BLOCK] = Hopper::class;
-			
-			self::$list[self::REDSTONE_COMPARATOR_BLOCK] = RedstoneComparator::class;
-			self::$list[self::TRAPPED_CHEST] = TrappedChest::class;
-			
-			self::$list[self::PORTAL] = Portal::class;
+            self::$list[self::PISTON] = Piston::class;
+            self::$list[self::PISTON_HEAD] = PistonHead::class;
+            self::$list[self::STICKY_PISTON] = StickyPiston::class;
+
+            self::$list[self::DROPPER] = Dropper::class;
+            self::$list[self::DISPENSER] = Dispenser::class;
+            self::$list[self::HOPPER_BLOCK] = Hopper::class;
+
+            self::$list[self::REDSTONE_COMPARATOR_BLOCK] = RedstoneComparator::class;
+            self::$list[self::TRAPPED_CHEST] = TrappedChest::class;
+
+            self::$list[self::PORTAL] = Portal::class;
 
 			self::$list[self::CONCRETE] = Concrete::class;
 			self::$list[self::CONCRETE_POWDER] = ConcretePowder::class;
@@ -698,7 +657,7 @@ class Block extends Position implements Metadatable {
 			self::$list[self::WALL_BANNER] = WallBanner::class;
 			self::$list[self::RED_SANDSTONE] = RedSandstone::class;
 			self::$list[self::RED_SANDSTONE_STAIRS] = RedSandstoneStairs::class;
-			self::$list[self::ITEM_FRAME_BLOCK] = ItemFrame::class;
+			self::$list[self::ITEM_FRAME] = ItemFrame::class;
 			self::$list[self::PURPUR_STAIRS] = PurpurStairs::class;
 			self::$list[self::UNDYED_SHULKER_BOX] = UndyedShulkerBox::class;
 			self::$list[self::FROSTED_ICE] = FrostedIce::class;
@@ -721,8 +680,6 @@ class Block extends Position implements Metadatable {
 			self::$list[self::GREEN_GLAZED_TERRACOTTA] = GreenGlazedTerracotta::class;
 			self::$list[self::RED_GLAZED_TERRACOTTA] = RedGlazedTerracotta::class;
 			self::$list[self::BLACK_GLAZED_TERRACOTTA] = BlackGlazedTerracotta::class;
-
-			self::$list[self::MAGMA] = Magma::class;
 			
 			foreach (self::$list as $id => $class) {
 				static::registerBlock($id, $class);
@@ -854,20 +811,9 @@ class Block extends Position implements Metadatable {
 	 *
 	 * @return void
 	 */
-	
-	public function onUpdate($type, $deep){
-		if ($deep > 0 && ($this->needScheduleOnUpdate())) {
-			$this->level->scheduleUpdate($this, 4, $type);
-			return false;
-		}
-		return true;
-	}
-	
-	public function needScheduleOnUpdate() {
-		return false;
-	}
-	
+	public function onUpdate($type){
 
+	}
 
 	/**
 	 * Do actions when activated by Item. Returns if it has done anything
@@ -942,11 +888,7 @@ class Block extends Position implements Metadatable {
 	}
 
 	public function isSolid(){
-		return false;
-	}
-	
-	public function isMayBeDestroyedByPiston() {
-		return false;
+		return true;
 	}
 	
 	public function isLiquid() {
@@ -1067,9 +1009,9 @@ class Block extends Position implements Metadatable {
 			return -1;
 		}
 		$toolType = $this->getToolType();
-		$isSuitableForHarvest = ($this->getId() != Block::QUARTZ_BLOCK || $item->isPickaxe()) && (!empty($this->getDrops($item)) || $toolType == Tool::TYPE_NONE);
-		$secondsForBreak = $this->getHardness() * ($isSuitableForHarvest ? 1.5 : 5);
-		if ($secondsForBreak == 0) {
+        $isSuitableForHarvest = ($this->getId() != Block::QUARTZ_BLOCK || $item->isPickaxe()) && (!empty($this->getDrops($item)) || $toolType == Tool::TYPE_NONE);
+        $secondsForBreak = $this->getHardness() * ($isSuitableForHarvest ? 1.5 : 5);
+        if ($secondsForBreak == 0) {
 			$secondsForBreak = 0.05;
 		}
 		
@@ -1148,7 +1090,7 @@ class Block extends Position implements Metadatable {
 	 * @return string
 	 */
 	public function __toString(){
-		return "Block[" . $this->getName() . "] (" . $this->getId() . ":" . $this->getDamage() . ") [ x: " . $this->x . ", y: " . $this->y . ", z: " . $this->z . " ]";
+            return "Block[" . $this->getName() . "] (" . $this->getId() . ":" . $this->getDamage() . ") [ x: " . $this->x . ", y: " . $this->y . ", z: " . $this->z . " ]";
 	}
 
 	/**
@@ -1308,110 +1250,110 @@ class Block extends Position implements Metadatable {
 			$this->getLevel()->getBlockMetadata()->removeMetadata($this, $metadataKey, $plugin);
 		}
 	}
-	
-	public function getPoweredState() {
-		return 0; /** @see Solid::POWERED_NONE */
-	}
-	
-	final public function isConnectedWithWireFromSide($side) {
-		switch ($side) {
-			case Vector3::SIDE_NORTH:
-				if ($this->level->getBlockIdAt($this->x, $this->y, $this->z - 1) == self::REDSTONE_WIRE) {
-					return self::isHaveWireOnSide(Vector3::SIDE_WEST, $this->x, $this->y, $this->z - 1) && 
-						self::isHaveWireOnSide(Vector3::SIDE_EAST, $this->x, $this->y, $this->z - 1);
-				}
-				break;
-			case Vector3::SIDE_SOUTH:
-				if ($this->level->getBlockIdAt($this->x, $this->y, $this->z + 1) == self::REDSTONE_WIRE) {
-					return self::isHaveWireOnSide(Vector3::SIDE_WEST, $this->x, $this->y, $this->z + 1) && 
-						self::isHaveWireOnSide(Vector3::SIDE_EAST, $this->x, $this->y, $this->z + 1);
-				}
-				break;
-			case Vector3::SIDE_WEST:
-				if ($this->level->getBlockIdAt($this->x - 1, $this->y, $this->z) == self::REDSTONE_WIRE) {
-					return self::isHaveWireOnSide(Vector3::SIDE_NORTH, $this->x - 1, $this->y, $this->z) && 
-						self::isHaveWireOnSide(Vector3::SIDE_SOUTH, $this->x - 1, $this->y, $this->z);
-				}
-				break;
-			case Vector3::SIDE_EAST:
-				if ($this->level->getBlockIdAt($this->x + 1, $this->y, $this->z) == self::REDSTONE_WIRE) {
-					return self::isHaveWireOnSide(Vector3::SIDE_NORTH, $this->x + 1, $this->y, $this->z) && 
-						self::isHaveWireOnSide(Vector3::SIDE_SOUTH, $this->x + 1, $this->y, $this->z);
-				}
-				break;
-		}
-		return false;
-	}
-	
-	private static function isHaveWireOnSide($side, $x, $y, $z) {
-		static $offsets = [
-			Vector3::SIDE_NORTH => [ 0, 0, -1],
-			Vector3::SIDE_SOUTH => [ 0, 0, 1],
-			Vector3::SIDE_WEST => [ -1, 0, 0],
-			Vector3::SIDE_EAST => [ 1, 0, 0],
-		];
-		
-		if (!isset($offsets[$side])) {
-			return false;
-		}
-		$x = $x + $offsets[$side][0];
-		$y = $y + $offsets[$side][1];
-		$z = $z + $offsets[$side][2];
-		
-		$blockId = $this->level->getBlockIdAt($x, $y, $z);
-		if ($blockId == self::REDSTONE_WIRE) {
-			return true;
-		}
-		if (self::$solid[$blockId] || self::$transparent[$blockId]) {
-			$blockAboveId = $this->level->getBlockIdAt($x, $y + 1, $z);
-			if ($blockAboveId == self::REDSTONE_WIRE) {
-				return true;
-			}
-		}
-		if (self::$transparent[$blockId]) {
-			$blockBelowId = $this->level->getBlockIdAt($x, $y - 1, $z);
-			if ($blockBelowId == self::REDSTONE_WIRE) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public function isCharged() {
-		switch ($this->id) {
-			case self::REDSTONE_WIRE:
-				return $this->meta > 0;
-			case self::REDSTONE_TORCH_ACTIVE:
-				return true;
-			case self::WOODEN_PRESSURE_PLATE:
-			case self::STONE_PRESSURE_PLATE:
-			case self::WEIGHTED_PRESSURE_PLATE_LIGHT:
-			case self::WEIGHTED_PRESSURE_PLATE_HEAVY:
-			case self::LEVER:
-				return $this->isActive();
-			default:
-				return self::$solid[$this->id] && $this->getPoweredState() != Solid::POWERED_NONE;
-		}
-	}
 
-	protected function getColorNameByMeta($meta) {
-		static $colors = [
-			self::COLOR_WHITE => "White",
-			self::COLOR_ORANGE => "Orange",
-			self::COLOR_MAGENTA => "Magenta",
-			self::COLOR_LIGHT_BLUE => "Light Blue",
-			self::COLOR_YELLOW => "Yellow",
-			self::COLOR_LIME => "Lime",
-			self::COLOR_PINK => "Pink",
-			self::COLOR_GRAY => "Gray",
-			self::COLOR_LIGHT_GRAY => "Light Gray",
-			self::COLOR_CYAN => "Cyan",
-			self::COLOR_PURPLE => "Purple",
-			self::COLOR_BLUE => "Blue",
-			self::COLOR_BROWN => "Brown",
-			self::COLOR_GREEN => "Green",
-			self::COLOR_RED => "Red",
-			self::COLOR_BLACK => "Black"
+    public function getPoweredState() {
+        return 0; /** @see Solid::POWERED_NONE */
+    }
+
+    final public function isConnectedWithWireFromSide($side) {
+        switch ($side) {
+            case Vector3::SIDE_NORTH:
+                if ($this->level->getBlockIdAt($this->x, $this->y, $this->z - 1) == self::REDSTONE_WIRE) {
+                    return self::isHaveWireOnSide(Vector3::SIDE_WEST, $this->x, $this->y, $this->z - 1) &&
+                        self::isHaveWireOnSide(Vector3::SIDE_EAST, $this->x, $this->y, $this->z - 1);
+                }
+                break;
+            case Vector3::SIDE_SOUTH:
+                if ($this->level->getBlockIdAt($this->x, $this->y, $this->z + 1) == self::REDSTONE_WIRE) {
+                    return self::isHaveWireOnSide(Vector3::SIDE_WEST, $this->x, $this->y, $this->z + 1) &&
+                        self::isHaveWireOnSide(Vector3::SIDE_EAST, $this->x, $this->y, $this->z + 1);
+                }
+                break;
+            case Vector3::SIDE_WEST:
+                if ($this->level->getBlockIdAt($this->x - 1, $this->y, $this->z) == self::REDSTONE_WIRE) {
+                    return self::isHaveWireOnSide(Vector3::SIDE_NORTH, $this->x - 1, $this->y, $this->z) &&
+                        self::isHaveWireOnSide(Vector3::SIDE_SOUTH, $this->x - 1, $this->y, $this->z);
+                }
+                break;
+            case Vector3::SIDE_EAST:
+                if ($this->level->getBlockIdAt($this->x + 1, $this->y, $this->z) == self::REDSTONE_WIRE) {
+                    return self::isHaveWireOnSide(Vector3::SIDE_NORTH, $this->x + 1, $this->y, $this->z) &&
+                        self::isHaveWireOnSide(Vector3::SIDE_SOUTH, $this->x + 1, $this->y, $this->z);
+                }
+                break;
+        }
+        return false;
+    }
+
+    private static function isHaveWireOnSide($side, $x, $y, $z) {
+        static $offsets = [
+            Vector3::SIDE_NORTH => [ 0, 0, -1],
+            Vector3::SIDE_SOUTH => [ 0, 0, 1],
+            Vector3::SIDE_WEST => [ -1, 0, 0],
+            Vector3::SIDE_EAST => [ 1, 0, 0],
+        ];
+
+        if (!isset($offsets[$side])) {
+            return false;
+        }
+        $x = $x + $offsets[$side][0];
+        $y = $y + $offsets[$side][1];
+        $z = $z + $offsets[$side][2];
+
+        $blockId = $this->level->getBlockIdAt($x, $y, $z);
+        if ($blockId == self::REDSTONE_WIRE) {
+            return true;
+        }
+        if (self::$solid[$blockId] || self::$transparent[$blockId]) {
+            $blockAboveId = $this->level->getBlockIdAt($x, $y + 1, $z);
+            if ($blockAboveId == self::REDSTONE_WIRE) {
+                return true;
+            }
+        }
+        if (self::$transparent[$blockId]) {
+            $blockBelowId = $this->level->getBlockIdAt($x, $y - 1, $z);
+            if ($blockBelowId == self::REDSTONE_WIRE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function isCharged() {
+        switch ($this->id) {
+            case self::REDSTONE_WIRE:
+                return $this->meta > 0;
+            case self::REDSTONE_TORCH_ACTIVE:
+                return true;
+            case self::WOODEN_PRESSURE_PLATE:
+            case self::STONE_PRESSURE_PLATE:
+            case self::WEIGHTED_PRESSURE_PLATE_LIGHT:
+            case self::WEIGHTED_PRESSURE_PLATE_HEAVY:
+            case self::LEVER:
+                return $this->isActive();
+            default:
+                return self::$solid[$this->id] && $this->getPoweredState() != Solid::POWERED_NONE;
+        }
+    }
+
+    protected function getColorNameByMeta($meta) {
+        static $colors = [
+			0 => "White",
+			1 => "Orange",
+			2 => "Magenta",
+			3 => "Light Blue",
+			4 => "Yellow",
+			5 => "Lime",
+			6 => "Pink",
+			7 => "Gray",
+			8 => "Light Gray",
+			9 => "Cyan",
+			10 => "Purple",
+			11 => "Blue",
+			12 => "Brown",
+			13 => "Green",
+			14 => "Red",
+			15 => "Black"
 		];
 		return $colors[$meta & 0x0f];
 	}

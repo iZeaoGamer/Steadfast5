@@ -53,11 +53,7 @@ class RedstoneWire extends Transparent {
 		];
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		$this->collectNeighbors();
 		$targetPower = $this->meta;
 		$targetDirection = self::DIRECTION_NONE;

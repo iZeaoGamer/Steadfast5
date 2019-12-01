@@ -50,21 +50,21 @@ use pocketmine\utils\Random;
 class Normal extends Generator{
 
 	/** @var Populator[] */
-	private $populators = [];
+	protected $populators = [];
 	/** @var ChunkManager */
-	private $level;
+	protected $level;
 	/** @var Random */
-	private $random;
+	protected $random;
 	private $waterHeight = 62;
 	private $bedrockDepth = 5;
 
 	/** @var Populator[] */
-	private $generationPopulators = [];
+	protected $generationPopulators = [];
 	/** @var Simplex */
 	private $noiseBase;
 
 	/** @var BiomeSelector */
-	private $selector;
+	protected $selector;
 
 	private static $GAUSSIAN_KERNEL = null;
 	private static $SMOOTH_SIZE = 2;

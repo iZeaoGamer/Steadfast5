@@ -82,11 +82,7 @@ class Piston extends Solid {
 		return true;
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		if ($type != Level::BLOCK_UPDATE_TOUCH) {
 			static $offsets = [
 				self::SIDE_NORTH => [0, 0, -1],

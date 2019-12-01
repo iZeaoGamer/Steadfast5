@@ -109,11 +109,7 @@ class RedstoneRepeater extends Transparent {
 		return true;
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		if ($type == Level::BLOCK_UPDATE_NORMAL) {
 			$backPosition = $this->getBackBlockCoords();
 			$backBlockID = $this->level->getBlockIdAt($backPosition->x, $backPosition->y, $backPosition->z);

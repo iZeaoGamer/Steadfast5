@@ -52,7 +52,7 @@ class Chest extends Spawnable implements InventoryHolder, Container, Nameable{
 		}
 
 		for($i = 0; $i < $this->getSize(); ++$i){
-			$this->inventory->setItem($i, $this->getItem($i), false);
+			$this->inventory->setItem($i, $this->getItem($i));
 		}
 	}
 
@@ -72,7 +72,6 @@ class Chest extends Spawnable implements InventoryHolder, Container, Nameable{
 	}
 
 	public function saveNBT(){
-		parent::saveNBT();
 		$this->namedtag->Items = new Enum("Items", []);
 		$this->namedtag->Items->setTagType(NBT::TAG_Compound);
 		for($index = 0; $index < $this->getSize(); ++$index){

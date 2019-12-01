@@ -1,66 +1,148 @@
 <?php
 
 namespace pocketmine\entity;
-use pocketmine\level\format\FullChunk;
-use pocketmine\nbt\tag\Compound;
+
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\item\Item as ItemItem;
+use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
+use pocketmine\network\mcpe\protocol\EntityEventPacket;
+use pocketmine\Player;
 
 class Boat extends Vehicle {
-
 	const NETWORK_ID = 90;
 
 	public $height = 0.7;
 	public $width = 1.6;
-	protected $riderOffset = [0, 0.6, 0];
-	protected $afterMovement = false;
-	protected $interactText = "Board";
-	
-	public function __construct(FullChunk $chunk, Compound $nbt) {
-		parent::__construct($chunk, $nbt);
-		$this->setDataFlag(self::DATA_FLAGS, self::DATA_FLAG_HAS_COLLISION, true, self::DATA_TYPE_LONG, false);
-		$this->setDataFlag(self::DATA_FLAGS, self::DATA_FLAG_AFFECTED_BY_GRAVITY, true, self::DATA_TYPE_LONG, false);
-	}
-	
-	public function initEntity() {
-		$this->setMaxHealth(10);
-		$this->setHealth($this->getMaxHealth());
-		parent::initEntity();
-	}
 
-	public function getName() {
-		return "Boat";
-	}
+	public $gravity = 0.5;
+	public $drag = 0.1;
 
-	public function onUpdate($currentTick) {
-		if ($this->closed !== false) {
-			return false;
+	/**
+	 * Boat constructor.
+	 *
+	 * @param Level       $level
+	 * @param CompoundTag $nbt
+	 */
+	public function __construct(Level $level, CompoundTag $nbt){
+		if(!isset($nbt->WoodID)){
+			$nbt->WoodID = new IntTag("WoodID", 0);
 		}
+		parent::__construct($level, $nbt);
+		$this->setDataProperty(self::DATA_VARIANT, self::DATA_TYPE_INT, $this->getWoodID());
+	}
 
-		if ($this->dead === true) {
-			$this->removeAllEffects();
-			$this->despawnFromAll();
-			$this->close();
+	/**
+	 * @return int
+	 */
+	public function getWoodID() : int{
+		return (int) $this->namedtag["WoodID"];
+	}
+
+	/**
+	 * @param Player $player
+	 */
+	public function spawnTo(Player $player){
+		$pk = new AddEntityPacket();
+		$pk->eid = $this->getId();
+		$pk->type = Boat::NETWORK_ID;
+		$pk->x = $this->x;
+		$pk->y = $this->y;
+		$pk->z = $this->z;
+		$pk->speedX = 0;
+		$pk->speedY = 0;
+		$pk->speedZ = 0;
+		$pk->yaw = 0;
+		$pk->pitch = 0;
+		$pk->metadata = $this->dataProperties;
+		$player->dataPacket($pk);
+
+		parent::spawnTo($player);
+	}
+
+	/**
+	 * @param float             $damage
+	 * @param EntityDamageEvent $source
+	 *
+	 * @return bool|void
+	 */
+	public function attack($damage, EntityDamageEvent $source){
+		parent::attack($damage, $source);
+
+		if(!$source->isCancelled()){
+			$pk = new EntityEventPacket();
+			$pk->eid = $this->id;
+			$pk->event = EntityEventPacket::HURT_ANIMATION;
+			foreach($this->getLevel()->getPlayers() as $player){
+				$player->dataPacket($pk);
+			}
+		}
+	}
+
+	/**
+	 * @param $currentTick
+	 *
+	 * @return bool
+	 */
+	public function onUpdate($currentTick){
+		if($this->closed){
 			return false;
 		}
 		$tickDiff = $currentTick - $this->lastUpdate;
-		if ($tickDiff < 1) {
+		if($tickDiff <= 0 and !$this->justCreated){
 			return true;
 		}
 
 		$this->lastUpdate = $currentTick;
 
-		$hasUpdate = false;
-		if ($this->afterMovement) {
-			$this->afterMovement = false;
-			$this->updateMovement();
+		$this->timings->startTiming();
+
+		$hasUpdate = $this->entityBaseTick($tickDiff);
+
+		if(!$this->level->getBlock(new Vector3($this->x, $this->y, $this->z))->getBoundingBox() == null or $this->isInsideOfWater()){
+			$this->motionY = 0.1;
+		}else{
+			$this->motionY = -0.08;
 		}
-		return $hasUpdate;
-	}
-	
-	public function updateByOwner($x, $y, $z, $yaw, $pitch) {
-		$this->setPositionAndRotation(new Vector3($x, $y, $z), $yaw, $pitch);
-		$this->afterMovement = true;
-		$this->scheduleUpdate();
+
+		$this->move($this->motionX, $this->motionY, $this->motionZ);
+		$this->updateMovement();
+
+		if($this->linkedEntity == null or $this->linkedType = 0){
+			if($this->age > 1500){
+				$this->close();
+				$hasUpdate = true;
+				//$this->scheduleUpdate();
+
+				$this->age = 0;
+			}
+			$this->age++;
+		}else $this->age = 0;
+
+		$this->timings->stopTiming();
+
+
+		return $hasUpdate or !$this->onGround or abs($this->motionX) > 0.00001 or abs($this->motionY) > 0.00001 or abs($this->motionZ) > 0.00001;
 	}
 
+
+	/**
+	 * @return array
+	 */
+	public function getDrops(){
+		return [
+			ItemItem::get(ItemItem::BOAT, 0, 1)
+		];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSaveId(){
+		$class = new \ReflectionClass(static::class);
+		return $class->getShortName();
+	}
 }

@@ -21,11 +21,7 @@ class RedstoneTorch extends RedstoneTorchActive {
 		return 0;
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
-		$deep++;
+	public function onUpdate($type) {
 		static $faces = [
 			1 => 4,
 			2 => 5,

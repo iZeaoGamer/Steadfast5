@@ -1,30 +1,30 @@
 <?php
 
-
 namespace pocketmine\network\protocol;
 
-class StopSoundPacket extends PEPacket {
+#include <rules/DataPacket.h>
 
-    const NETWORK_ID = Info120::STOP_SOUND_PACKET;
-    const PACKET_NAME = "STOP_SOUND_PACKET";
+class StopSoundPacket extends DataPacket {
+	const NETWORK_ID = Info310::STOP_SOUND_PACKET;
 
-    public $string1;
+	public $sound;
+	public $stopAll;
 
-    public $stopAll;
+	/**
+	 *
+	 */
+	public function decode(){
+		$this->sound = $this->getString();
+		$this->stopAll = $this->getBool();
+	}
 
-    public function decode($playerProtocol){
-        $this->string1 = $this->getString();
-        $this->stopAll = $this->getBool();
-    }
-
-    public function encode($playerProtocol){
-        $this->reset($playerProtocol);
-        $this->putString($this->string1);
-        $this->putBool($this->stopAll);
-    }
-
-    public function handle(NetworkSession $session) : bool{
-        return $session->handleStopSound($this);
-    }
+	/**
+	 *
+	 */
+	public function encode(){
+		$this->reset();
+		$this->putString($this->sound);
+		$this->putBool($this->stopAll);
+	}
 
 }

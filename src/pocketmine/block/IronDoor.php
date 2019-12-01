@@ -59,10 +59,7 @@ class IronDoor extends Door{
 		return true;
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
+	public function onUpdate($type) {
 		$isOpen = $this->isOpen();
 		$connectedWithChargedBlock = $this->isConnectedWithChargedBlock();
 		if ($connectedWithChargedBlock xor $isOpen) {

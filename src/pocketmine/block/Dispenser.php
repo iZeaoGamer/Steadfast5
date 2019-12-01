@@ -63,10 +63,7 @@ class Dispenser extends Solid {
 		return true;
 	}
 	
-	public function onUpdate($type, $deep) {
-		if (!Block::onUpdate($type, $deep)) {
-			return false;
-		}
+	public function onUpdate($type) {
 		static $offsets = [
 			self::SIDE_UP => [0, 1, 0],
 			self::SIDE_DOWN => [0, -1, 0],

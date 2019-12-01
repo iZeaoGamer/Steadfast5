@@ -38,6 +38,8 @@ use pocketmine\network\protocol\RemoveEntityPacket;
 use pocketmine\Player;
 use pocketmine\level\Level;
 
+use pocketmine\network\multiversion\Multiversion;
+
 class Human extends Creature implements ProjectileSource, InventoryHolder{
 
 	protected $nameTag = "TESTIFICATE";
@@ -49,8 +51,8 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 	protected $uuid;
 	protected $rawUUID;
 
-	public $width = 0.58;
-	public $length = 0.58;
+	public $width = 0.6;
+	public $length = 0.6;
 	public $height = 1.8;
 	public $eyeHeight = 1.62;
 
@@ -120,13 +122,13 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 		if (is_string($skinName)) {
 			$this->skinName = $skinName;
 		}
-		if (is_string($skinGeometryName)) {
+		if (!empty($skinGeometryName)) {
 			$this->skinGeometryName = $skinGeometryName;
 		}
-		if (is_string($skinGeometryData)) {
+		if (!empty($skinGeometryData)) {
 			$this->skinGeometryData = $skinGeometryData;
 		}
-		if (is_string($capeData)) {
+		if (!empty($capeData)) {
 			$this->capeData = $capeData;
 		}
 
@@ -246,9 +248,6 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 			$pk->pitch = $this->pitch;
 			$pk->item = $this->getInventory()->getItemInHand();
 			$pk->metadata = $this->dataProperties;
-			if ($this instanceof Player) {
-				$pk->buildPlatform = $this->getDeviceOS();
-			}
 			$player->dataPacket($pk);
 
 			$this->inventory->sendArmorContents($player);

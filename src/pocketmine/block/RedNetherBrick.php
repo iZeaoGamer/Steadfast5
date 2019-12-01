@@ -17,4 +17,5 @@ class RedNetherBrick extends NetherBrick {
 			[Item::RED_NETHER_BRICK, 0, 1],
 		];
 	}
+
 }
